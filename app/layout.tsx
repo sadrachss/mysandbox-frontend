@@ -1,27 +1,36 @@
-import './globals.css';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { Providers } from './providers';
-import { Toaster } from '@/components/ui/toaster';
+'use client';
 
-const inter = Inter({ subsets: ['latin'] });
+import { useState } from 'react';
+import { AuthGuard } from '@/components/auth-guard';
+import { Sidebar } from '@/components/dashboard/sidebar';
+import { Navbar } from '@/components/dashboard/navbar';
 
-export const metadata: Metadata = {
-  title: 'MySandbox.codes - Link Hub for Developers',
-  description: 'Create your developer link hub with custom themes',
-};
-
-export default function RootLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   return (
-    <html lang="en" className="dark">
-      <body className={inter.className}>
-        <Providers>{children}</Providers>
-        <Toaster />
-      </body>
-    </html>
+    <AuthGuard>
+      <div className="flex h-screen overflow-hidden bg-background">
+        {/* Desktop Sidebar */}
+        <Sidebar
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+
+        {/* Main content area */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <Navbar />
+          <main className="flex-1 overflow-y-auto">
+            <div className="p-4 lg:p-6 max-w-6xl">
+              {children}
+            </div>
+          </main>
+        </div>
+      </div>
+    </AuthGuard>
   );
 }
