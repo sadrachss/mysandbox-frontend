@@ -27,6 +27,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.454.0",
     "react-hook-form": "^7.53.0",
+    "@hookform/resolvers": "^3.9.0",
     "recharts": "^2.13.3",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",

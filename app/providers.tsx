@@ -1,7 +1,28 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuthStore } from '@/lib/store/auth';
+import { authService } from '@/lib/api/auth';
+
+function AuthInitializer({ children }: { children: React.ReactNode }) {
+  const { setUser, logout } = useAuthStore();
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      setUser(null);
+      return;
+    }
+
+    authService
+      .me()
+      .then((data) => setUser(data.user))
+      .catch(() => logout());
+  }, [setUser, logout]);
+
+  return <>{children}</>;
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -18,7 +39,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <AuthInitializer>{children}</AuthInitializer>
     </QueryClientProvider>
   );
 }
