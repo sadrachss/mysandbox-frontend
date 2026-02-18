@@ -5,13 +5,13 @@ const nextConfig = {
     domains: ['cdn.mysandbox.codes', 'localhost'],
   },
   async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.mysandbox.codes/api';
     return [
       {
         source: '/api/:path*',
-        destination: process.env.NEXT_PUBLIC_API_URL + '/:path*',
+        destination: `${apiUrl}/:path*`,
       },
     ];
   },
 };
-
 module.exports = nextConfig;
