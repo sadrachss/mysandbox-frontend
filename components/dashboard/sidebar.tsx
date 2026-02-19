@@ -14,6 +14,7 @@ import {
   ExternalLink,
   Braces,
   Crown,
+  Shield,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -147,6 +148,19 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           >
             <Crown className="h-4 w-4 shrink-0" />
             <span>Upgrade to PRO</span>
+          </Link>
+        </div>
+      )}
+
+      {/* Admin Panel Link */}
+      {!collapsed && user?.isAdmin && (
+        <div className="px-3 pb-3">
+          <Link
+            href="/admin"
+            className="flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2.5 text-xs font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+          >
+            <Shield className="h-4 w-4 shrink-0" />
+            <span>Admin Panel</span>
           </Link>
         </div>
       )}

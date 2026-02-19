@@ -5,6 +5,7 @@ interface User {
   email: string;
   username: string;
   plan: 'FREE' | 'PRO';
+  isAdmin?: boolean;
   profile?: any;
 }
 
