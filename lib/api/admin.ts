@@ -39,6 +39,11 @@ export const adminService = {
     return data;
   },
 
+  changePassword: async (id: string, newPassword: string) => {
+    const { data } = await api.post(`/admin/users/${id}/change-password`, { newPassword });
+    return data;
+  },
+
   // Links
   getLinks: async (params?: { search?: string; page?: number; limit?: number }) => {
     const { data } = await api.get('/admin/links', { params });
