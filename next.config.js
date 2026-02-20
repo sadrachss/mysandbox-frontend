@@ -11,6 +11,15 @@ const nextConfig = {
   },
   async rewrites() {
     return [
+      // JSON API and Badge — proxy to backend before [username] catches them
+      {
+        source: '/:username/json',
+        destination: `${backendBase}/public/:username/json`,
+      },
+      {
+        source: '/:username/badge',
+        destination: `${backendBase}/public/:username/badge`,
+      },
       {
         source: '/api/:path*',
         destination: `${apiUrl}/:path*`,

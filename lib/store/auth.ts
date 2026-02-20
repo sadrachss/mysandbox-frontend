@@ -1,12 +1,21 @@
 import { create } from 'zustand';
 
+interface UserProfile {
+  id: string;
+  displayName: string;
+  bio?: string | null;
+  avatarUrl?: string | null;
+  status?: string;
+  statusMessage?: string | null;
+}
+
 interface User {
   id: string;
   email: string;
   username: string;
   plan: 'FREE' | 'PRO';
   isAdmin?: boolean;
-  profile?: any;
+  profile?: UserProfile | null;
 }
 
 interface AuthState {

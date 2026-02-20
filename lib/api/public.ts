@@ -9,6 +9,10 @@ export interface PublicProfile {
     displayName: string;
     bio?: string;
     avatarUrl?: string;
+    status: 'available' | 'busy' | 'hybrid';
+    statusMessage?: string | null;
+    contactUrl?: string | null;
+    contactLabel?: string | null;
   };
   links: {
     id: string;

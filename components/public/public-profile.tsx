@@ -33,6 +33,36 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
   const buttonStyle = getButtonStyle(theme);
   const maxWidth = theme.layout?.maxWidth || 600;
 
+  // Status config
+  const statusConfig: Record<string, { color: string; label: string; animate: boolean }> = {
+    available: { color: '#22c55e', label: 'Available', animate: true },
+    busy: { color: '#ef4444', label: 'Busy', animate: false },
+    hybrid: { color: '#eab308', label: 'Hybrid', animate: false },
+  };
+
+  const currentStatus = statusConfig[profile.status] || statusConfig.available;
+
+  // Quick Contact: determine CTA based on status
+  const getContactCTA = () => {
+    if (!profile.contactUrl) return null;
+
+    // Use custom label or fall back to status-based defaults
+    const defaultLabels: Record<string, string> = {
+      available: 'Hire me',
+      busy: 'Join waitlist',
+      hybrid: "Let's talk",
+    };
+
+    const label = profile.contactLabel || defaultLabels[profile.status] || 'Contact me';
+
+    // Hide CTA when busy and no custom label set
+    if (profile.status === 'busy' && !profile.contactLabel) return null;
+
+    return { label, url: profile.contactUrl };
+  };
+
+  const contactCTA = isPro ? getContactCTA() : null;
+
   return (
     <div
       className="min-h-screen flex flex-col"
@@ -82,14 +112,54 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
           @{username}
         </p>
 
-        {/* Bio */}
+        {/* Status Badge */}
+        <div className="flex items-center gap-2 mb-4">
+          <div
+            className="h-2.5 w-2.5 rounded-full"
+            style={{
+              backgroundColor: currentStatus.color,
+              animation: currentStatus.animate ? 'pulse 2s infinite' : 'none',
+            }}
+          />
+          <span
+            className="text-xs font-medium"
+            style={{ color: theme.typography.bio.color }}
+          >
+            {profile.statusMessage || currentStatus.label}
+          </span>
+        </div>
+
+        {/* Bio with Markdown */}
         {profile.bio && (
-          <p
-            className="text-center max-w-md mb-8 leading-relaxed"
+          <div
+            className="text-center max-w-md mb-6 leading-relaxed"
             style={bioStyle}
           >
-            {profile.bio}
-          </p>
+            <MarkdownBio text={profile.bio} theme={theme} />
+          </div>
+        )}
+
+        {/* Quick Contact CTA */}
+        {contactCTA && (
+          <a
+            href={contactCTA.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group w-full max-w-md mb-6 text-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] block"
+            style={{
+              ...buttonStyle,
+              background: `linear-gradient(135deg, ${theme.buttons.backgroundColor}, ${adjustColor(theme.buttons.backgroundColor, 20)})`,
+              border: `1px solid ${theme.buttons.textColor}20`,
+            }}
+          >
+            <div className="flex items-center justify-center gap-2 px-5 py-3.5">
+              <span className="font-semibold text-sm">{contactCTA.label}</span>
+              <ExternalLink
+                className="h-3.5 w-3.5 opacity-50 group-hover:opacity-80 transition-opacity"
+                style={{ color: theme.buttons.textColor }}
+              />
+            </div>
+          </a>
         )}
 
         {/* Links */}
@@ -140,11 +210,93 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
           <span>MySandbox.codes</span>
         </a>
       </footer>
+
+      {/* Pulse animation keyframe */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
     </div>
   );
 }
 
-// Helper: build background CSS
+// ============================================
+// Markdown Bio Renderer
+// Supports: **bold**, `code`, [text](url)
+// ============================================
+function MarkdownBio({ text, theme }: { text: string; theme: ThemeConfig }) {
+  const parts = text.split(/(\*\*.*?\*\*|`[^`]+`|\[.*?\]\(.*?\))/g);
+
+  return (
+    <>
+      {parts.map((part, i) => {
+        // Bold
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return (
+            <strong key={i} style={{ fontWeight: 600, color: theme.typography.name.color }}>
+              {part.slice(2, -2)}
+            </strong>
+          );
+        }
+        // Inline code
+        if (part.startsWith('`') && part.endsWith('`')) {
+          return (
+            <code
+              key={i}
+              style={{
+                padding: '1px 5px',
+                borderRadius: 4,
+                backgroundColor: theme.buttons.backgroundColor + '40',
+                color: theme.buttons.textColor,
+                fontSize: '0.85em',
+                fontFamily: 'monospace',
+              }}
+            >
+              {part.slice(1, -1)}
+            </code>
+          );
+        }
+        // Link [text](url)
+        const linkMatch = part.match(/^\[(.*?)\]\((.*?)\)$/);
+        if (linkMatch) {
+          return (
+            <a
+              key={i}
+              href={linkMatch[2]}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: theme.buttons.textColor,
+                textDecoration: 'underline',
+                textUnderlineOffset: '3px',
+              }}
+            >
+              {linkMatch[1]}
+            </a>
+          );
+        }
+        // Plain text (preserve newlines)
+        return (
+          <span key={i}>
+            {part.split('\n').map((line, j, arr) => (
+              <span key={j}>
+                {line}
+                {j < arr.length - 1 && <br />}
+              </span>
+            ))}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
+// ============================================
+// Helper functions
+// ============================================
+
 function getBackgroundStyle(theme: ThemeConfig): React.CSSProperties {
   const bg = theme.background;
 
@@ -161,10 +313,9 @@ function getBackgroundStyle(theme: ThemeConfig): React.CSSProperties {
     };
   }
 
-  return { backgroundColor: bg.color || '#0f172a' };
+  return { backgroundColor: bg.color || '#0a0e17' };
 }
 
-// Helper: build typography CSS
 function getTypographyStyle(config: {
   font: string;
   size: number;
@@ -179,7 +330,6 @@ function getTypographyStyle(config: {
   };
 }
 
-// Helper: build button CSS
 function getButtonStyle(theme: ThemeConfig): React.CSSProperties {
   const btn = theme.buttons;
 
@@ -198,4 +348,14 @@ function getButtonStyle(theme: ThemeConfig): React.CSSProperties {
   }
 
   return style;
+}
+
+// Lighten/darken a hex color
+function adjustColor(hex: string, amount: number): string {
+  const clamp = (n: number) => Math.min(255, Math.max(0, n));
+  const color = hex.replace('#', '');
+  const r = clamp(parseInt(color.substring(0, 2), 16) + amount);
+  const g = clamp(parseInt(color.substring(2, 4), 16) + amount);
+  const b = clamp(parseInt(color.substring(4, 6), 16) + amount);
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
