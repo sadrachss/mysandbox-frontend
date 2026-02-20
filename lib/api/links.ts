@@ -16,22 +16,27 @@ export const linksService = {
     const response = await api.get('/links');
     return response.data.links;
   },
-  
+
   create: async (data: Partial<Link>) => {
     const response = await api.post('/links', data);
     return response.data.link;
   },
-  
+
   update: async (id: string, data: Partial<Link>) => {
     const response = await api.put(`/links/${id}`, data);
     return response.data.link;
   },
-  
+
   delete: async (id: string) => {
     await api.delete(`/links/${id}`);
   },
-  
+
   reorder: async (linkIds: string[]) => {
     await api.post('/links/reorder', { linkIds });
+  },
+
+  getConfig: async () => {
+    const response = await api.get('/links/config');
+    return response.data as { maxFreeLinks: number };
   },
 };
