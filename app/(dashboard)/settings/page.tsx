@@ -76,12 +76,8 @@ export default function SettingsPage() {
   <span className="font-medium">@{user?.username}</span>
   </div>
   <div className="flex items-center justify-between py-2">
-  <span className="text-muted-foreground">Member since</span>
-  <span className="font-medium">
-  {user?.createdAt
-    ? new Date(user.createdAt).toLocaleDateString('pt-BR')
-    : '—'}
-    </span>
+     <span className="text-muted-foreground">Plan</span>
+     <span className="font-medium">{user?.plan || 'FREE'}</span>
     </div>
     </div>
     </Card>
