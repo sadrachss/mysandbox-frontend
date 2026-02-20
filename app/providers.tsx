@@ -1,28 +1,9 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
-import { useAuthStore } from '@/lib/store/auth';
-import { authService } from '@/lib/api/auth';
-
-function AuthInitializer({ children }: { children: React.ReactNode }) {
-  const { setUser, logout } = useAuthStore();
-
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      setUser(null);
-      return;
-    }
-
-    authService
-      .me()
-      .then((data) => setUser(data.user))
-      .catch(() => logout());
-  }, [setUser, logout]);
-
-  return <>{children}</>;
-}
+import { useState } from 'react';
+import { Toaster } from '@/components/ui/toaster';
+import { I18nProvider } from '@/lib/i18n';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -31,7 +12,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultOptions: {
           queries: {
             staleTime: 60 * 1000,
-            refetchOnWindowFocus: false,
+            retry: 1,
           },
         },
       })
@@ -39,7 +20,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthInitializer>{children}</AuthInitializer>
+      <I18nProvider defaultLocale="pt-BR">
+        {children}
+        <Toaster />
+      </I18nProvider>
     </QueryClientProvider>
   );
 }
